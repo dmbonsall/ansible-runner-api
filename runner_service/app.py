@@ -5,7 +5,6 @@ from .controllers import (ListPlaybooks,
                           PlaybookState,
                           StartPlaybook,
                           StartTaggedPlaybook,
-                          API,
                           ListEvents,
                           GetEvent,
                           ListGroups,
@@ -51,11 +50,6 @@ def create_app():
     api.add_resource(HostVars, "/api/v1/hostvars/<host_name>/groups/<group_name>")   # noqa: E501
     api.add_resource(GroupVars, "/api/v1/groupvars/<group_name>")   # noqa: E501
 
-    api.add_resource(API, "/api")
     api.add_resource(PrometheusMetrics, "/metrics")
-
-    # push the app object into the API class, so it can walk the
-    # API endpoints.
-    API.app = app
 
     return app
