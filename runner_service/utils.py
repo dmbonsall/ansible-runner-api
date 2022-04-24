@@ -24,72 +24,17 @@ logger = logging.getLogger(__name__)
 class RunnerServiceError(Exception):
     pass
 
+
 def create_directory(dir_path):
     """ Create directory if it doesn't exist """
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
 
+
 def fread(file_path):
     """ return the contents of the given file """
     with open(file_path, 'r') as file_fd:
         return file_fd.read().strip()
-
-
-def create_self_signed_cert(cert_dir, cert_pfx):
-    """
-    Looks in cert_dir for the key files (using the cert_pfx name), and either
-    returns if they exist, or create them if they're missing.
-    """
-
-    cert_filename = os.path.join(cert_dir,
-                                 "{}.crt".format(cert_pfx))
-    key_filename = os.path.join(cert_dir,
-                                "{}.key".format(cert_pfx))
-
-    logger.debug("Checking for the SSL keys in {}".format(cert_dir))
-    if os.path.exists(cert_filename) \
-            or os.path.exists(key_filename):
-        logger.info("Using existing SSL files in {}".format(cert_dir))
-        return (cert_filename, key_filename)
-    else:
-        logger.info("Existing SSL files not found in {}".format(cert_dir))
-        logger.info("Self-signed cert will be created - expiring in {} "
-                    "years".format(configuration.settings.cert_expiration))
-
-        # create a key pair
-        k = crypto.PKey()
-        k.generate_key(crypto.TYPE_RSA, 2048)
-
-        # create a self-signed cert
-        cert = crypto.X509()
-        cert.get_subject().C = "US"
-        cert.get_subject().ST = "North Carolina"
-        cert.get_subject().L = "Raliegh"
-        cert.get_subject().O = "Red Hat"         # noqa: E741
-        cert.get_subject().OU = "Ansible"
-        cert.get_subject().CN = socket.gethostname()
-        cert.set_serial_number(1000)
-        cert.gmtime_adj_notBefore(0)
-
-        # define cert expiration period(years)
-        cert.gmtime_adj_notAfter(configuration.settings.cert_expiration * 365 * 24 * 60 * 60)   # noqa
-
-        cert.set_issuer(cert.get_subject())
-        cert.set_pubkey(k)
-        cert.sign(k, 'sha512')
-
-        # create cert_dir if it doesn't exist
-        create_directory(cert_dir)
-
-        logger.debug("Writing crt file to {}".format(cert_filename))
-        with open(os.path.join(cert_dir, cert_filename), "wt") as cert_fd:
-            cert_fd.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert).decode('utf-8'))   # noqa
-
-        logger.debug("Writing key file to {}".format(key_filename))
-        with open(os.path.join(cert_dir, key_filename), "wt") as key_fd:
-            key_fd.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, k).decode('utf-8'))    # noqa
-
-        return (cert_filename, key_filename)
 
 
 def rm_r(path):
@@ -99,64 +44,6 @@ def rm_r(path):
         os.unlink(path)
     else:
         shutil.rmtree(path)
-
-
-def ssh_create_key(ssh_dir, user=None):
-
-    if not user:
-        user = getpass.getuser()
-
-    prv_key = rsa.generate_private_key(
-            public_exponent=65537,
-            key_size=4096,
-            backend=default_backend())
-    pub_key = prv_key.public_key()
-
-    prv_file = os.path.join(ssh_dir, 'ssh_key')
-    pub_file = os.path.join(ssh_dir, 'ssh_key.pub')
-
-    # create ssh_dir if it doesn't exist
-    create_directory(ssh_dir)
-
-    # export the private key
-    try:
-        with open(prv_file, "wb") as f:
-            f.write(prv_key.private_bytes(
-                    encoding=serialization.Encoding.PEM,
-                    format=serialization.PrivateFormat.TraditionalOpenSSL,
-                    encryption_algorithm=serialization.NoEncryption()))
-
-    except (OSError, IOError) as err:
-        msg = "Unable to write to private key to '{}': {}".format(ssh_dir, err)
-        logger.critical(msg)
-        raise RunnerServiceError(msg)
-    except Exception as err:
-        logger.critical("Unknown error writing private key: {}".format(err))
-        raise
-    else:
-        # python3 syntax
-        os.chmod(prv_file, 0o600)
-        logger.info("Created SSH private key @ '{}'".format(prv_file))
-
-    # export the public key
-    try:
-        with open(pub_file, "wb") as f:
-            f.write(pub_key.public_bytes(
-                    encoding=serialization.Encoding.OpenSSH,
-                    format=serialization.PublicFormat.OpenSSH))
-
-    except (OSError, IOError) as err:
-        msg = "Unable to write public ssh key to {}: {}".format(ssh_dir, err)
-        logger.critical(msg)
-        raise RunnerServiceError(msg)
-    except Exception as err:
-        logger.critical("Unknown error creating the public key "
-                        "to {}: {}".format(ssh_dir, err))
-        raise
-    else:
-        # python3 syntax
-        os.chmod(pub_file, 0o644)
-        logger.info("Created SSH public key @ '{}'".format(pub_file))
 
 
 if sys.version_info[0] == 2:
