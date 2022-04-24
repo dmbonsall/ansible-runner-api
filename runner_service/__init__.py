@@ -11,5 +11,3 @@ from .inventory import (AnsibleInventory,           # noqa: F401
                         InventoryreadError,
                         InventoryCorruptError,
                         InventoryOperationNotAllowed)
-
-__version__ = '1.0.3'
