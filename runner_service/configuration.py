@@ -24,17 +24,18 @@ class Config(object):
         "log_path": os.path.abspath("./"),
         "config_file": os.path.abspath("./config.yaml"),
         "playbooks_root_dir": os.path.abspath("./samples"),
-        "debug": False
+        "artifacts_remove_enabled": False,
+        "debug": False,
     }
 
     def __init__(self):
 
-        self.mode = mode
         # defaults
         self.playbooks_root_dir = Config.DEFAULT_CONFIG.get('playbooks_root_dir')
         self.logging_conf = Config.DEFAULT_CONFIG.get('logging_conf', None)
         self.log_path = Config.DEFAULT_CONFIG.get('log_path', None)
         self.config_file = Config.DEFAULT_CONFIG.get('config_file', None)
+        self.artifacts_remove_enabled = Config.DEFAULT_CONFIG.get("artifacts_remove_enabled", False)
         self.config_dir = os.path.dirname(self.config_file)
         self.event_cache_size = 3
         self.runner_cache_size = 5

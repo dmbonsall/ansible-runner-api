@@ -106,7 +106,7 @@ def main(test_mode=False):
         app.config['WTF_CSRF_ENABLED'] = False
         return app.test_client()
 
-    if configuration.settings.mode == 'prod' and configuration.settings.artifacts_remove_age > 0:
+    if configuration.settings.artifacts_remove_enabled and configuration.settings.artifacts_remove_age > 0:
         remove_artifacts_init()
 
     # Start the API server
