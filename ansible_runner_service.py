@@ -56,16 +56,6 @@ def setup_logging():
                         "basic logging".format(logging_config))
 
 
-def get_mode():
-    """ get the runtime mode """
-
-    # set the mode based on where this is running from
-    if os.path.dirname(__file__).startswith("/usr"):
-        return 'prod'
-    else:
-        return 'dev'
-
-
 def setup_common_environment():
 
     setup_logging()
@@ -132,9 +122,7 @@ if __name__ == "__main__":
     # setup signal handler for a kill/sigterm request (background mode)
     signal.signal(signal.SIGTERM, signal_stop)
 
-    mode = get_mode()
-
     print("Starting ansible-runner-service")
-    configuration.init(mode=mode)
+    configuration.init()
 
     main()

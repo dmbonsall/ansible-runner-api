@@ -19,36 +19,26 @@ def init(mode='dev'):
 
 class Config(object):
 
-    MODES = {
-        "prod": {
-            "logging_conf": "/etc/ansible-runner-service/logging.yaml",
-            "log_path": "/var/log",
-            "config_file": "/etc/ansible-runner-service/config.yaml",
-            "playbooks_root_dir": "/usr/share/ansible-runner-service",
-            "templates_dir": "/var/",
-            "debug": False
-        },
-        "dev": {
-            "logging_conf": os.path.abspath("./logging.yaml"),
-            "log_path": os.path.abspath("./"),
-            "config_file": os.path.abspath("./config.yaml"),
-            "playbooks_root_dir": os.path.abspath("./samples"),
-            "debug": True
-        }
+    DEFAULT_CONFIG = {
+        "logging_conf": os.path.abspath("./logging.yaml"),
+        "log_path": os.path.abspath("./"),
+        "config_file": os.path.abspath("./config.yaml"),
+        "playbooks_root_dir": os.path.abspath("./samples"),
+        "debug": False
     }
 
-    def __init__(self, mode='dev'):
+    def __init__(self):
 
         self.mode = mode
         # defaults
-        self.playbooks_root_dir = Config.MODES[mode].get('playbooks_root_dir')
-        self.logging_conf = Config.MODES[mode].get('logging_conf', None)
-        self.log_path = Config.MODES[mode].get('log_path', None)
-        self.config_file = Config.MODES[mode].get('config_file', None)
+        self.playbooks_root_dir = Config.DEFAULT_CONFIG.get('playbooks_root_dir')
+        self.logging_conf = Config.DEFAULT_CONFIG.get('logging_conf', None)
+        self.log_path = Config.DEFAULT_CONFIG.get('log_path', None)
+        self.config_file = Config.DEFAULT_CONFIG.get('config_file', None)
         self.config_dir = os.path.dirname(self.config_file)
         self.event_cache_size = 3
         self.runner_cache_size = 5
-        self.debug = Config.MODES[mode].get("debug", True)
+        self.debug = Config.DEFAULT_CONFIG.get("debug", True)
 
         # Path to custom ssh key, by default project/env/ssh_key is used
         self.ssh_private_key = os.path.join(
