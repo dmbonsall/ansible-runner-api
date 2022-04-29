@@ -56,12 +56,6 @@ def setup_logging():
                         "basic logging".format(logging_config))
 
 
-def setup_common_environment():
-
-    setup_logging()
-    logging.info("Run mode is: {}".format(configuration.settings.mode))
-
-
 def remove_artifacts(scheduler, frequency):
     # Clean artifacts older than artifacts_remove_age days.
     artifacts_dir = os.path.join(configuration.settings.playbooks_root_dir, "artifacts")
@@ -97,7 +91,7 @@ def remove_artifacts_init():
 
 def main(test_mode=False):
     # Setup log and ssh and other things present in all the environments
-    setup_common_environment()
+    setup_logging()
 
     app = create_app()
 

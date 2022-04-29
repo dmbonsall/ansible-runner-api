@@ -11,10 +11,10 @@ out = logging.StreamHandler(sys.stdout)
 logger.addHandler(out)
 
 
-def init(mode='dev'):
+def init():
     global settings
 
-    settings = Config(mode)
+    settings = Config()
 
 
 class Config(object):
